@@ -19,8 +19,8 @@
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            text-align: center;
             width: 360px;
+            text-align: center;
         }
 
         input {
@@ -30,31 +30,28 @@
         }
 
         button {
-            padding: 10px;
             width: 100%;
+            padding: 10px;
             background: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 5px;
         }
 
         button:hover {
             background: #0056b3;
         }
 
-        .report {
-            border-top: 1px solid #ddd;
-            margin-top: 10px;
-            padding-top: 10px;
-            text-align: left;
-        }
-
         a {
             color: #007bff;
             font-weight: bold;
             text-decoration: none;
+        }
+
+        #output {
+            margin-top: 15px;
+            text-align: left;
         }
     </style>
 </head>
@@ -64,46 +61,55 @@
 <div class="card">
     <h2>📱 Lost Phone Helper</h2>
 
-    <p>If you found this phone, please help return it 🙏</p>
+    <p>Share your location to help return the phone 🙏</p>
 
-    <input type="email" id="email" placeholder="Enter your email">
+    <input type="email" id="email" placeholder="Enter email">
     <input type="text" id="phone" placeholder="Enter phone number">
 
-    <button onclick="getLocation()">Share & Send Report</button>
+    <button onclick="sendReport()">Share Location</button>
 
     <div id="output"></div>
 </div>
 
 <script>
-function getLocation() {
+async function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
 
     if (!email || !phone) {
-        alert("Please enter email and phone number");
+        alert("Please fill in email and phone number");
         return;
     }
 
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
 
-            let lat = position.coords.latitude;
-            let lon = position.coords.longitude;
+            let latitude = position.coords.latitude;
+            let longitude = position.coords.longitude;
 
-            let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
+            let data = {
+                email: email,
+                phone: phone,
+                latitude: latitude,
+                longitude: longitude
+            };
 
-            let subject = "Lost Phone Location Report";
-            let body =
-                "Email: " + email + "%0D%0A" +
-                "Phone: " + phone + "%0D%0A" +
-                "Location: " + mapLink + "%0D%0A";
+            // Send data to backend
+            await fetch("http://localhost:3000/report", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
 
-            let mailtoLink = "mailto:?subject=" + subject + "&body=" + body;
+            let mapLink = "https://www.google.com/maps?q=" + latitude + "," + longitude;
 
             document.getElementById("output").innerHTML =
-                "<h3>📍 Report Ready</h3>" +
-                "<p>Click below to send report via email:</p>" +
-                "<a href='" + mailtoLink + "'>📧 Send Email Report</a>";
+                "<h3>📍 Report Sent Successfully</h3>" +
+                "<p><b>Email:</b> " + email + "</p>" +
+                "<p><b>Phone:</b> " + phone + "</p>" +
+                "<a href='" + mapLink + "' target='_blank'>🌍 Open Location in Google Maps</a>";
 
         }, function() {
             alert("Location access denied");
