@@ -20,7 +20,7 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             text-align: center;
-            width: 350px;
+            width: 360px;
         }
 
         input {
@@ -53,8 +53,8 @@
 
         a {
             color: #007bff;
-            text-decoration: none;
             font-weight: bold;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -66,20 +66,15 @@
 
     <p>If you found this phone, please help return it 🙏</p>
 
-    <input type="email" id="email" placeholder="Enter email">
+    <input type="email" id="email" placeholder="Enter your email">
     <input type="text" id="phone" placeholder="Enter phone number">
 
-    <button onclick="getLocation()">Share Location</button>
-    <button onclick="clearReports()" style="background:red;">Clear Reports</button>
+    <button onclick="getLocation()">Share & Send Report</button>
 
     <div id="output"></div>
 </div>
 
 <script>
-let reports = JSON.parse(localStorage.getItem("reports")) || [];
-
-displayReports();
-
 function getLocation() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
@@ -97,18 +92,18 @@ function getLocation() {
 
             let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
 
-            let report = {
-                email: email,
-                phone: phone,
-                location: mapLink,
-                time: new Date().toLocaleString()
-            };
+            let subject = "Lost Phone Location Report";
+            let body =
+                "Email: " + email + "%0D%0A" +
+                "Phone: " + phone + "%0D%0A" +
+                "Location: " + mapLink + "%0D%0A";
 
-            reports.push(report);
+            let mailtoLink = "mailto:?subject=" + subject + "&body=" + body;
 
-            localStorage.setItem("reports", JSON.stringify(reports));
-
-            displayReports();
+            document.getElementById("output").innerHTML =
+                "<h3>📍 Report Ready</h3>" +
+                "<p>Click below to send report via email:</p>" +
+                "<a href='" + mailtoLink + "'>📧 Send Email Report</a>";
 
         }, function() {
             alert("Location access denied");
@@ -117,29 +112,6 @@ function getLocation() {
     } else {
         alert("Geolocation not supported");
     }
-}
-
-function displayReports() {
-    let output = "<h3>📍 Reports</h3>";
-
-    for (let i = 0; i < reports.length; i++) {
-        output += `
-            <div class="report">
-                <p><b>Email:</b> ${reports[i].email}</p>
-                <p><b>Phone:</b> ${reports[i].phone}</p>
-                <p><b>Time:</b> ${reports[i].time}</p>
-                <a href="${reports[i].location}" target="_blank">🌍 Open Location</a>
-            </div>
-        `;
-    }
-
-    document.getElementById("output").innerHTML = output;
-}
-
-function clearReports() {
-    localStorage.removeItem("reports");
-    reports = [];
-    displayReports();
 }
 </script>
 
