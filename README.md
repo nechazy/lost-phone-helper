@@ -53,3 +53,13 @@ The application only requests location access when the user clicks the button an
 ## 👨‍💻 Author
 
 This project was built as a beginner-friendly web development exercise to practice real-world problem solving using HTML, CSS, and JavaScript.
+## 📸 Screenshots
+
+### 🏠 Home Page
+![Home Page](https://via.placeholder.com/800x400.png?text=Lost+Phone+Helper+Home+Page)
+
+### 📍 Location Sharing
+![Location Sharing](https://via.placeholder.com/800x400.png?text=Location+Sharing+Feature)
+
+### 🗺️ Google Maps Result
+![Google Maps](https://via.placeholder.com/800x400.png?text=Google+Maps+Link+Output)
