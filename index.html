@@ -10,17 +10,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
 
         .card {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             text-align: center;
-            width: 320px;
+            width: 340px;
         }
 
         input {
@@ -49,9 +49,13 @@
             font-weight: bold;
         }
 
-        h3 {
-            margin-bottom: 10px;
+        .report {
+            border-top: 1px solid #ddd;
+            margin-top: 10px;
+            padding-top: 10px;
+            text-align: left;
         }
+
     </style>
 </head>
 
@@ -66,10 +70,12 @@
 
     <button onclick="getLocation()">Share Location</button>
 
-    <p id="output"></p>
+    <div id="output"></div>
 </div>
 
 <script>
+let reports = [];
+
 function getLocation() {
     const email = document.getElementById("email").value;
 
@@ -86,11 +92,15 @@ function getLocation() {
 
             let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
 
-            document.getElementById("output").innerHTML =
-                "<h3>📍 Report Submitted</h3>" +
-                "<p><b>Email:</b> " + email + "</p>" +
-                "<p><b>Location:</b> Successfully captured</p>" +
-                "<a href='" + mapLink + "' target='_blank'>🌍 Open in Google Maps</a>";
+            let report = {
+                email: email,
+                location: mapLink,
+                time: new Date().toLocaleString()
+            };
+
+            reports.push(report);
+
+            displayReports();
 
         }, function() {
             alert("Location access denied");
@@ -99,6 +109,22 @@ function getLocation() {
     } else {
         alert("Geolocation not supported");
     }
+}
+
+function displayReports() {
+    let output = "<h3>📍 Reports</h3>";
+
+    for (let i = 0; i < reports.length; i++) {
+        output += `
+            <div class="report">
+                <p><b>Email:</b> ${reports[i].email}</p>
+                <p><b>Time:</b> ${reports[i].time}</p>
+                <a href="${reports[i].location}" target="_blank">🌍 Open Location</a>
+            </div>
+        `;
+    }
+
+    document.getElementById("output").innerHTML = output;
 }
 </script>
 
