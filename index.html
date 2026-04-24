@@ -55,7 +55,6 @@
             padding-top: 10px;
             text-align: left;
         }
-
     </style>
 </head>
 
@@ -70,11 +69,17 @@
 
     <button onclick="getLocation()">Share Location</button>
 
+    <button onclick="clearReports()" style="margin-top:10px;background:red;">
+        Clear Reports
+    </button>
+
     <div id="output"></div>
 </div>
 
 <script>
-let reports = [];
+let reports = JSON.parse(localStorage.getItem("reports")) || [];
+
+displayReports();
 
 function getLocation() {
     const email = document.getElementById("email").value;
@@ -100,6 +105,8 @@ function getLocation() {
 
             reports.push(report);
 
+            localStorage.setItem("reports", JSON.stringify(reports));
+
             displayReports();
 
         }, function() {
@@ -112,7 +119,7 @@ function getLocation() {
 }
 
 function displayReports() {
-    let output = "<h3>📍 Reports</h3>";
+    let output = "<h3>📍 Saved Reports</h3>";
 
     for (let i = 0; i < reports.length; i++) {
         output += `
@@ -125,6 +132,12 @@ function displayReports() {
     }
 
     document.getElementById("output").innerHTML = output;
+}
+
+function clearReports() {
+    localStorage.removeItem("reports");
+    reports = [];
+    displayReports();
 }
 </script>
 
