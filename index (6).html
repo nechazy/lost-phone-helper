@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lost Phone Helper</title>
+
+<style>
+body {
+font-family: Arial;
+background: #f2f2f2;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
+}
+
+.card {
+background: white;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+text-align: center;
+width: 300px;
+}
+
+input {
+width: 90%;
+padding: 10px;
+margin: 10px 0;
+}
+
+button {
+padding: 10px;
+width: 100%;
+background: #007bff;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+
+button:hover {
+background: #0056b3;
+}
+
+a {
+color: #007bff;
+text-decoration: none;
+font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>📱 Lost Phone Helper</h2>
+<p>If you found this phone, help return it</p>
+
+<input type="email" id="email" placeholder="Enter your email">
+
+<button onclick="getLocation()">Share Location</button>
+
+<p id="output"></p>
+</div>
+
+<script>
+function getLocation() {
+const email = document.getElementById("email").value;
+
+if (!email) {
+alert("Please enter your email");
+return;
+}
+
+if (navigator.geolocation) {
+navigator.geolocation.getCurrentPosition(function(position) {
+let lat = position.coords.latitude;
+let lon = position.coords.longitude;
+
+document.getElementById("output").innerHTML =
+"Location captured!<br>" +
+"Email: " + email + "<br><br>" +
+"<a href='https://www.google.com/maps?q=" + lat + "," + lon + "' target='_blank'>📍 View on Google Maps</a>";
+}, function() {
+alert("Location access denied");
+});
+} else {
+alert("Geolocation not supported");
+}
+}
+</script>
+
+</body>
+</html>
