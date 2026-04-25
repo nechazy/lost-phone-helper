@@ -3,6 +3,8 @@
 <head>
     <title>Lost Phone Helper</title>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <style>
         body {
             margin: 0;
@@ -56,22 +58,6 @@
             cursor: pointer;
         }
 
-        .logout {
-            background: red;
-        }
-
-        .report {
-            background: #f1f5f9;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 10px;
-        }
-
-        a {
-            color: #2563eb;
-            font-weight: bold;
-        }
-
         #appScreen {
             display: none;
         }
@@ -84,26 +70,26 @@
 
     <div class="header">📱 Lost Phone Helper</div>
 
-    <!-- LOGIN SCREEN -->
+    <!-- LOGIN -->
     <div class="content" id="loginScreen">
-        <h3>Login</h3>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
+        <h3>Sign in with Google</h3>
 
-        <button onclick="login()">Login</button>
+        <div id="g_id_onload"
+             data-client_id="YOUR_CLIENT_ID_HERE"
+             data-callback="handleCredentialResponse">
+        </div>
+
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
-    <!-- APP SCREEN -->
+    <!-- APP -->
     <div class="content" id="appScreen">
-        <p style="font-size:13px;color:gray;">
-            Share your location to help return phone 🙏
-        </p>
+        <p id="userInfo"></p>
 
         <input type="email" id="email" placeholder="Enter email">
-        <input type="text" id="phone" placeholder="Enter phone number">
+        <input type="text" id="phone" placeholder="Enter phone">
 
         <button onclick="sendReport()">Share Location</button>
-        <button class="logout" onclick="logout()">Logout</button>
 
         <div id="output"></div>
     </div>
@@ -111,38 +97,29 @@
 </div>
 
 <script>
-// CHECK LOGIN STATUS
-if (localStorage.getItem("loggedIn") === "true") {
-    showApp();
-}
+// GOOGLE LOGIN RESPONSE
+function handleCredentialResponse(response) {
+    const data = parseJwt(response.credential);
 
-// LOGIN FUNCTION
-function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    // Simple login (you can change credentials)
-    if (username === "admin" && password === "1234") {
-        localStorage.setItem("loggedIn", "true");
-        showApp();
-    } else {
-        alert("Wrong username or password");
-    }
-}
-
-// SHOW APP
-function showApp() {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
+
+    document.getElementById("userInfo").innerHTML =
+        "👤 " + data.name + "<br>📧 " + data.email;
 }
 
-// LOGOUT
-function logout() {
-    localStorage.removeItem("loggedIn");
-    location.reload();
+// Decode JWT
+function parseJwt(token) {
+    let base64Url = token.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
 }
 
-// SEND REPORT (same functionality)
+// LOCATION FUNCTION
 function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
@@ -160,15 +137,9 @@ function sendReport() {
         let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
 
         document.getElementById("output").innerHTML =
-            "<div class='report'>" +
-            "<b>📍 Report Sent</b><br><br>" +
-            "Email: " + email + "<br>" +
-            "Phone: " + phone + "<br><br>" +
-            "<a target='_blank' href='" + mapLink + "'>Open Location</a>" +
-            "</div>";
+            "📍 Report Sent<br>" +
+            "<a target='_blank' href='" + mapLink + "'>Open Map</a>";
 
-    }, function() {
-        alert("Location denied");
     });
 }
 </script>
