@@ -3,7 +3,6 @@
 <head>
     <title>Lost Phone Helper</title>
 
-    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
@@ -112,7 +111,7 @@
 
 <script>
 
-// Auto login check
+// Check saved login
 window.onload = function() {
     let user = localStorage.getItem("user");
 
@@ -121,7 +120,7 @@ window.onload = function() {
     }
 };
 
-// Google login handler
+// Google login callback
 function handleCredentialResponse(response) {
     const data = parseJwt(response.credential);
 
@@ -157,7 +156,7 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-// Send location
+// Location sharing
 function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
