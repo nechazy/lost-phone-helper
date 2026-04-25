@@ -3,7 +3,7 @@
 <head>
     <title>Lost Phone Helper</title>
 
-    <!-- Google Sign-In -->
+    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
@@ -59,12 +59,19 @@
             cursor: pointer;
         }
 
+        button.logout {
+            background: red;
+        }
+
         #appScreen {
             display: none;
         }
 
-        .logout {
-            background: red;
+        .report {
+            background: #f1f5f9;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -75,7 +82,7 @@
 
     <div class="header">📱 Lost Phone Helper</div>
 
-    <!-- GOOGLE LOGIN SCREEN -->
+    <!-- LOGIN SCREEN -->
     <div class="content" id="loginScreen">
         <h3>Sign in with Google</h3>
 
@@ -93,7 +100,7 @@
         <p id="userInfo"></p>
 
         <input type="email" id="email" placeholder="Enter email">
-        <input type="text" id="phone" placeholder="Enter phone">
+        <input type="text" id="phone" placeholder="Enter phone number">
 
         <button onclick="sendReport()">Share Location</button>
         <button class="logout" onclick="logout()">Logout</button>
@@ -104,26 +111,26 @@
 </div>
 
 <script>
-// 🔐 CHECK IF USER ALREADY LOGGED IN
-window.onload = function() {
-    let savedUser = localStorage.getItem("user");
 
-    if (savedUser) {
-        showApp(JSON.parse(savedUser));
+// Auto login check
+window.onload = function() {
+    let user = localStorage.getItem("user");
+
+    if (user) {
+        showApp(JSON.parse(user));
     }
 };
 
-// ✅ HANDLE GOOGLE LOGIN
+// Google login handler
 function handleCredentialResponse(response) {
     const data = parseJwt(response.credential);
 
-    // Save user locally (so it stays logged in)
     localStorage.setItem("user", JSON.stringify(data));
 
     showApp(data);
 }
 
-// 🔓 SHOW APP
+// Show app screen
 function showApp(user) {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
@@ -132,16 +139,17 @@ function showApp(user) {
         "👤 " + user.name + "<br>📧 " + user.email;
 }
 
-// 🔐 LOGOUT
+// Logout
 function logout() {
     localStorage.removeItem("user");
     location.reload();
 }
 
-// 🧠 DECODE GOOGLE TOKEN
+// Decode Google token
 function parseJwt(token) {
     let base64Url = token.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+
     let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
@@ -149,13 +157,13 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-// 📍 LOCATION FUNCTION
+// Send location
 function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
 
     if (!email || !phone) {
-        alert("Fill all fields");
+        alert("Please fill all fields");
         return;
     }
 
@@ -167,13 +175,18 @@ function sendReport() {
         let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
 
         document.getElementById("output").innerHTML =
-            "📍 Report Sent<br>" +
-            "<a target='_blank' href='" + mapLink + "'>Open Map</a>";
+            "<div class='report'>" +
+            "📍 Location Sent<br><br>" +
+            "Email: " + email + "<br>" +
+            "Phone: " + phone + "<br><br>" +
+            "<a target='_blank' href='" + mapLink + "'>Open Map</a>" +
+            "</div>";
 
     }, function() {
         alert("Location denied");
     });
 }
+
 </script>
 
 </body>
