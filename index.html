@@ -6,12 +6,12 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: Arial;
             background: #0f172a;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
         }
 
         .phone {
@@ -19,7 +19,6 @@
             height: 640px;
             background: white;
             border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -30,38 +29,35 @@
             color: white;
             padding: 15px;
             text-align: center;
-            font-size: 18px;
             font-weight: bold;
         }
 
         .content {
             padding: 15px;
             flex: 1;
-            overflow-y: auto;
         }
 
         input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin: 8px 0;
-            border: 1px solid #ccc;
             border-radius: 10px;
+            border: 1px solid #ccc;
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin-top: 10px;
             background: #2563eb;
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
             cursor: pointer;
         }
 
-        button:hover {
-            background: #1d4ed8;
+        .logout {
+            background: red;
         }
 
         .report {
@@ -69,20 +65,15 @@
             padding: 10px;
             margin-top: 10px;
             border-radius: 10px;
-            font-size: 14px;
         }
 
         a {
             color: #2563eb;
             font-weight: bold;
-            text-decoration: none;
         }
 
-        .footer {
-            padding: 10px;
-            text-align: center;
-            font-size: 12px;
-            color: gray;
+        #appScreen {
+            display: none;
         }
     </style>
 </head>
@@ -91,38 +82,73 @@
 
 <div class="phone">
 
-    <div class="header">
-        📱 Lost Phone Helper
+    <div class="header">📱 Lost Phone Helper</div>
+
+    <!-- LOGIN SCREEN -->
+    <div class="content" id="loginScreen">
+        <h3>Login</h3>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="login()">Login</button>
     </div>
 
-    <div class="content">
-
+    <!-- APP SCREEN -->
+    <div class="content" id="appScreen">
         <p style="font-size:13px;color:gray;">
-            Help return this phone by sharing your location 🙏
+            Share your location to help return phone 🙏
         </p>
 
         <input type="email" id="email" placeholder="Enter email">
         <input type="text" id="phone" placeholder="Enter phone number">
 
         <button onclick="sendReport()">Share Location</button>
+        <button class="logout" onclick="logout()">Logout</button>
 
         <div id="output"></div>
-
-    </div>
-
-    <div class="footer">
-        Powered by Lost Phone Helper
     </div>
 
 </div>
 
 <script>
+// CHECK LOGIN STATUS
+if (localStorage.getItem("loggedIn") === "true") {
+    showApp();
+}
+
+// LOGIN FUNCTION
+function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    // Simple login (you can change credentials)
+    if (username === "admin" && password === "1234") {
+        localStorage.setItem("loggedIn", "true");
+        showApp();
+    } else {
+        alert("Wrong username or password");
+    }
+}
+
+// SHOW APP
+function showApp() {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appScreen").style.display = "block";
+}
+
+// LOGOUT
+function logout() {
+    localStorage.removeItem("loggedIn");
+    location.reload();
+}
+
+// SEND REPORT (same functionality)
 function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
 
     if (!email || !phone) {
-        alert("Please fill all fields");
+        alert("Fill all fields");
         return;
     }
 
@@ -142,7 +168,7 @@ function sendReport() {
             "</div>";
 
     }, function() {
-        alert("Location access denied");
+        alert("Location denied");
     });
 }
 </script>
