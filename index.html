@@ -3,6 +3,7 @@
 <head>
     <title>Lost Phone Helper</title>
 
+    <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
@@ -61,6 +62,10 @@
         #appScreen {
             display: none;
         }
+
+        .logout {
+            background: red;
+        }
     </style>
 </head>
 
@@ -70,19 +75,20 @@
 
     <div class="header">📱 Lost Phone Helper</div>
 
-    <!-- LOGIN -->
+    <!-- GOOGLE LOGIN SCREEN -->
     <div class="content" id="loginScreen">
         <h3>Sign in with Google</h3>
 
         <div id="g_id_onload"
              data-client_id="YOUR_CLIENT_ID_HERE"
-             data-callback="handleCredentialResponse">
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
         </div>
 
         <div class="g_id_signin" data-type="standard"></div>
     </div>
 
-    <!-- APP -->
+    <!-- APP SCREEN -->
     <div class="content" id="appScreen">
         <p id="userInfo"></p>
 
@@ -90,6 +96,7 @@
         <input type="text" id="phone" placeholder="Enter phone">
 
         <button onclick="sendReport()">Share Location</button>
+        <button class="logout" onclick="logout()">Logout</button>
 
         <div id="output"></div>
     </div>
@@ -97,18 +104,41 @@
 </div>
 
 <script>
-// GOOGLE LOGIN RESPONSE
+// 🔐 CHECK IF USER ALREADY LOGGED IN
+window.onload = function() {
+    let savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+        showApp(JSON.parse(savedUser));
+    }
+};
+
+// ✅ HANDLE GOOGLE LOGIN
 function handleCredentialResponse(response) {
     const data = parseJwt(response.credential);
 
+    // Save user locally (so it stays logged in)
+    localStorage.setItem("user", JSON.stringify(data));
+
+    showApp(data);
+}
+
+// 🔓 SHOW APP
+function showApp(user) {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
 
     document.getElementById("userInfo").innerHTML =
-        "👤 " + data.name + "<br>📧 " + data.email;
+        "👤 " + user.name + "<br>📧 " + user.email;
 }
 
-// Decode JWT
+// 🔐 LOGOUT
+function logout() {
+    localStorage.removeItem("user");
+    location.reload();
+}
+
+// 🧠 DECODE GOOGLE TOKEN
 function parseJwt(token) {
     let base64Url = token.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -119,7 +149,7 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-// LOCATION FUNCTION
+// 📍 LOCATION FUNCTION
 function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
@@ -140,6 +170,8 @@ function sendReport() {
             "📍 Report Sent<br>" +
             "<a target='_blank' href='" + mapLink + "'>Open Map</a>";
 
+    }, function() {
+        alert("Location denied");
     });
 }
 </script>
