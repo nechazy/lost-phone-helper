@@ -5,141 +5,145 @@
 
     <style>
         body {
-            font-family: Arial;
-            background: #f2f2f2;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
         }
 
-        .card {
+        .phone {
+            width: 360px;
+            height: 640px;
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
             text-align: center;
-            width: 350px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
         }
 
         input {
-            width: 90%;
-            padding: 10px;
+            width: 100%;
+            padding: 12px;
             margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
         }
 
         button {
-            padding: 10px;
             width: 100%;
-            background: #007bff;
+            padding: 12px;
+            margin-top: 10px;
+            background: #2563eb;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 15px;
             cursor: pointer;
-            margin-top: 5px;
         }
 
         button:hover {
-            background: #0056b3;
+            background: #1d4ed8;
         }
 
         .report {
-            border-top: 1px solid #ddd;
+            background: #f1f5f9;
+            padding: 10px;
             margin-top: 10px;
-            padding-top: 10px;
-            text-align: left;
+            border-radius: 10px;
+            font-size: 14px;
         }
 
         a {
-            color: #007bff;
-            text-decoration: none;
+            color: #2563eb;
             font-weight: bold;
+            text-decoration: none;
+        }
+
+        .footer {
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            color: gray;
         }
     </style>
 </head>
 
 <body>
 
-<div class="card">
-    <h2>📱 Lost Phone Helper</h2>
+<div class="phone">
 
-    <p>If you found this phone, please help return it 🙏</p>
+    <div class="header">
+        📱 Lost Phone Helper
+    </div>
 
-    <input type="email" id="email" placeholder="Enter email">
-    <input type="text" id="phone" placeholder="Enter phone number">
+    <div class="content">
 
-    <button onclick="getLocation()">Share Location</button>
-    <button onclick="clearReports()" style="background:red;">Clear Reports</button>
+        <p style="font-size:13px;color:gray;">
+            Help return this phone by sharing your location 🙏
+        </p>
 
-    <div id="output"></div>
+        <input type="email" id="email" placeholder="Enter email">
+        <input type="text" id="phone" placeholder="Enter phone number">
+
+        <button onclick="sendReport()">Share Location</button>
+
+        <div id="output"></div>
+
+    </div>
+
+    <div class="footer">
+        Powered by Lost Phone Helper
+    </div>
+
 </div>
 
 <script>
-let reports = JSON.parse(localStorage.getItem("reports")) || [];
-
-displayReports();
-
-function getLocation() {
+function sendReport() {
     const email = document.getElementById("email").value;
     const phone = document.getElementById("phone").value;
 
     if (!email || !phone) {
-        alert("Please enter email and phone number");
+        alert("Please fill all fields");
         return;
     }
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
+    navigator.geolocation.getCurrentPosition(function(position) {
 
-            let lat = position.coords.latitude;
-            let lon = position.coords.longitude;
+        let lat = position.coords.latitude;
+        let lon = position.coords.longitude;
 
-            let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
+        let mapLink = "https://www.google.com/maps?q=" + lat + "," + lon;
 
-            let report = {
-                email: email,
-                phone: phone,
-                location: mapLink,
-                time: new Date().toLocaleString()
-            };
+        document.getElementById("output").innerHTML =
+            "<div class='report'>" +
+            "<b>📍 Report Sent</b><br><br>" +
+            "Email: " + email + "<br>" +
+            "Phone: " + phone + "<br><br>" +
+            "<a target='_blank' href='" + mapLink + "'>Open Location</a>" +
+            "</div>";
 
-            reports.push(report);
-
-            localStorage.setItem("reports", JSON.stringify(reports));
-
-            displayReports();
-
-        }, function() {
-            alert("Location access denied");
-        });
-
-    } else {
-        alert("Geolocation not supported");
-    }
-}
-
-function displayReports() {
-    let output = "<h3>📍 Reports</h3>";
-
-    for (let i = 0; i < reports.length; i++) {
-        output += `
-            <div class="report">
-                <p><b>Email:</b> ${reports[i].email}</p>
-                <p><b>Phone:</b> ${reports[i].phone}</p>
-                <p><b>Time:</b> ${reports[i].time}</p>
-                <a href="${reports[i].location}" target="_blank">🌍 Open Location</a>
-            </div>
-        `;
-    }
-
-    document.getElementById("output").innerHTML = output;
-}
-
-function clearReports() {
-    localStorage.removeItem("reports");
-    reports = [];
-    displayReports();
+    }, function() {
+        alert("Location access denied");
+    });
 }
 </script>
 
